@@ -1,11 +1,12 @@
 import express from 'express';
-import { getCurrentUserController, loginUserController, createUserController } from '../controller/user.controller.ts'
+import { getCurrentUserController, loginUserController, createUserController,logoutUserController } from '../controller/user.controller.ts'
 
 
 const app = express();
 
 app.post('/signup', createUserController);
 app.post('/login', loginUserController);
+app.post('/logout',logoutUserController);
 app.get('/me', getCurrentUserController);   
 
 export default app;

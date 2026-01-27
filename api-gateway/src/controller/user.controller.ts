@@ -82,8 +82,23 @@ async function getCurrentUserController(req: any, res: any, next: any) {
 
 }
 
+async function logoutUserController(req: any, res: any, next: any) {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+    });
+    res.status(200).json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 export {
   createUserController,
   loginUserController,
-  getCurrentUserController
+  getCurrentUserController,
+  logoutUserController
 };

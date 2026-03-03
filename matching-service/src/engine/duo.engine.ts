@@ -92,4 +92,12 @@ async function createMatchInDB(
             }
         ]
     })
+
+    await redis.set(`match:${match.id}:status`, "PENDING");
+    await redis.del(`match:${match.id}:accepted`);
+
+    await redis.expire(`match:${match.id}:status`, 15); // expire in 15s
+    console.log("Match pending acceptance:", match.id)
+
+    return match.id
 }

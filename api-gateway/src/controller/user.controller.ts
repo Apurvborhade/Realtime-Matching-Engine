@@ -4,24 +4,34 @@ import { createUser, generateToken, verifyToken } from "../services/auth.service
 import { prisma } from "../lib/prisma";
 
 async function createUserController(req: any, res: any, next: any) {
-  const { name, email, password, rating, skills } = req.body;
+  const { username, email, password, region, rank, preferredRoles, mmr } = req.body;
   try {
-    if (!email || !password) {
-      throw new AppError("Email and password are required", 400);
+    if (!username || !email || !password || !region || !rank || !Array.isArray(preferredRoles)) {
+      throw new AppError("username, email, password, region, rank and preferredRoles are required", 400);
     }
 
     const hashedPassword = await hashPassword(password);
 
     // Create User Service
-    const user = await createUser(
-      name,
-      hashedPassword,
+    const user = await createUser({
+      username,
       email,
-      rating,
-      skills
-    );
+      passwordHash: hashedPassword,
+      region,
+      rank,
+      preferredRoles,
+      mmr,
+    });
 
-    const token = await generateToken(user);
+    const token = await generateToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      region: user.region,
+      rank: user.rank,
+      mmr: user.mmr,
+      preferredRoles: user.preferredRoles,
+    });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -47,12 +57,22 @@ async function loginUserController(req: any, res: any, next: any) {
       throw new AppError("Invalid email or password", 401);
     }
 
-    const isPasswordValid = await comparePassword(password, user.password);
+    const isPasswordValid = await comparePassword(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new AppError("Invalid email or password", 401);
     }
 
-    const token = await generateToken(user);
+    const token = await generateToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      region: user.region,
+      rank: user.rank,
+      mmr: user.mmr,
+      preferredRoles: user.preferredRoles,
+    });
+
+    const { passwordHash, ...safeUser } = user;
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -60,7 +80,7 @@ async function loginUserController(req: any, res: any, next: any) {
       sameSite: 'none',
     })
 
-    res.status(200).json({ success: true, user, message: "Login successful" });
+    res.status(200).json({ success: true, user: safeUser, message: "Login successful" });
   } catch (error) {
     next(error);
   }

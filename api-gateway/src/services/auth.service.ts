@@ -5,21 +5,45 @@ dotenv.config();
 
 export interface UserPayload {
     id: string;
-    name: string;
+    username: string;
     email: string;
-    rating: number;
-    skills: string;
+    region: string;
+    rank: string;
+    mmr: number;
+    preferredRoles: string[];
+}
+
+export interface CreateUserInput {
+    username: string;
+    email: string;
+    passwordHash: string;
+    region: string;
+    rank: string;
+    preferredRoles: string[];
+    mmr?: number;
 }
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export async function createUser(name:string, hashedPassword:string, email:string,rating:number,skills:string): Promise<any> {
+export async function createUser(data: CreateUserInput): Promise<any> {
     return prisma.user.create({
         data: {
-            name,
-            email,
-            password: hashedPassword,
-            rating,
-            skills
+            username: data.username,
+            email: data.email,
+            passwordHash: data.passwordHash,
+            region: data.region as any,
+            rank: data.rank as any,
+            preferredRoles: data.preferredRoles as any,
+            mmr: data.mmr
+        },
+        select: {
+            id: true,
+            username: true,
+            email: true,
+            region: true,
+            rank: true,
+            mmr: true,
+            preferredRoles: true,
+            createdAt: true
         }
     });
 }

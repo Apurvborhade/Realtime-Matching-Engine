@@ -1,4 +1,4 @@
-import { Region } from "../../generated/prisma/enums";
+import { Region } from "../../generated/prisma/index";
 import { prisma } from "../lib/prisma";
 import { redis } from "../redis/client";
 

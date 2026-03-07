@@ -1,5 +1,5 @@
 import express from 'express';
-import { limiter } from './middleware/rateLimit.middleware.ts';
+import { limiter } from './middleware/rateLimit.middleware';
 const app = express();
 
 

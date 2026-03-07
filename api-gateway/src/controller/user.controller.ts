@@ -4,10 +4,10 @@ import { createUser, generateToken, verifyToken } from "../services/auth.service
 import { prisma } from "../lib/prisma";
 
 async function createUserController(req: any, res: any, next: any) {
-  const { username, email, password, region, rank, preferredRoles, mmr } = req.body;
+  const { username, email, password, region, rank, preferredRoles, mmr,gender } = req.body;
   try {
-    if (!username || !email || !password || !region || !rank || !Array.isArray(preferredRoles)) {
-      throw new AppError("username, email, password, region, rank and preferredRoles are required", 400);
+    if (!username || !email || !password || !region || !rank || !Array.isArray(preferredRoles) || !gender) {
+      throw new AppError("username, email, password, region, rank, preferredRoles and gender are required", 400);
     }
 
     const hashedPassword = await hashPassword(password);
@@ -21,6 +21,7 @@ async function createUserController(req: any, res: any, next: any) {
       rank,
       preferredRoles,
       mmr,
+      gender
     });
 
     const token = await generateToken({
@@ -31,6 +32,7 @@ async function createUserController(req: any, res: any, next: any) {
       rank: user.rank,
       mmr: user.mmr,
       preferredRoles: user.preferredRoles,
+      gender: user.gender
     });
 
     res.cookie("token", token, {
@@ -70,6 +72,7 @@ async function loginUserController(req: any, res: any, next: any) {
       rank: user.rank,
       mmr: user.mmr,
       preferredRoles: user.preferredRoles,
+      gender: user.gender
     });
 
     const { passwordHash, ...safeUser } = user;

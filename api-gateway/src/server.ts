@@ -1,7 +1,7 @@
-import { API_GATEWAY_PORT } from './utils/constants.ts';
-import app from './main.ts';
-import { errorHandler } from './middleware/errorHandler.middleware.ts';
-import userRoutes from './routes/user.routes.ts';
+import { API_GATEWAY_PORT } from './utils/constants';
+import app from './main';
+import { errorHandler } from './middleware/errorHandler.middleware';
+import userRoutes from './routes/user.routes';
 
 
 app.use('/api/users', userRoutes);

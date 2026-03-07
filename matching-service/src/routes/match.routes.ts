@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { acceptMatch, declineMatch } from "../engine/acceptance.engine"
+import { acceptMatch, declineMatch } from "../engine/acceptance.engine.js"
 
 const router = Router()
 

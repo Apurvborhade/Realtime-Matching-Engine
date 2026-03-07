@@ -1,6 +1,9 @@
 import { prisma } from "../lib/prisma";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { Gender } from "../../generated/prisma/index";
+
+
 dotenv.config();
 
 export interface UserPayload {
@@ -11,6 +14,7 @@ export interface UserPayload {
     rank: string;
     mmr: number;
     preferredRoles: string[];
+    gender: Gender;
 }
 
 export interface CreateUserInput {
@@ -21,6 +25,7 @@ export interface CreateUserInput {
     rank: string;
     preferredRoles: string[];
     mmr?: number;
+    gender: Gender;
 }
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -33,7 +38,8 @@ export async function createUser(data: CreateUserInput): Promise<any> {
             region: data.region as any,
             rank: data.rank as any,
             preferredRoles: data.preferredRoles as any,
-            mmr: data.mmr
+            mmr: data.mmr,
+            gender:data.gender,
         },
         select: {
             id: true,

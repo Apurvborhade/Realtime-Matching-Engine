@@ -1,7 +1,7 @@
 import { redis } from "../redis/client";
 import { attemptDuoMatch } from "../engine/duo.engine";
-import { Region } from "../../generated/prisma/enums";
 import { prisma } from "../lib/prisma";
+import { Region } from "../../generated/prisma/index";
 
 export async function joinQueue(userId: string, mmr: number, region: Region) {
     const key = `queue:${region}:duo`;

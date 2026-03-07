@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { redis } from "../redis/client"
-import { prisma } from "../lib/prisma"
+import { redis } from "../redis/client.js"
+import { prisma } from "../lib/prisma.js"
 
 export async function acceptMatch(req: Request, res: Response) {
   const { matchId, userId } = req.body

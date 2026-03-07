@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCurrentUserController, loginUserController, createUserController,logoutUserController } from '../controller/user.controller.ts'
+import { getCurrentUserController, loginUserController, createUserController,logoutUserController } from '../controller/user.controller'
 
 
 const app = express();

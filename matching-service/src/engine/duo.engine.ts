@@ -25,6 +25,10 @@ export async function attemptDuoMatch(userId: string, mmr: number, region: Regio
 
     for (const candidateId of candidates) {
         if (candidateId === userId) continue;
+        const blocked = await redis.get(`decline:${userId}:${candidateId}`);
+        if (blocked) {
+            continue;
+        }
 
         const lock1 = await acquireLock(userId);
         if (!lock1) return;
@@ -34,6 +38,7 @@ export async function attemptDuoMatch(userId: string, mmr: number, region: Regio
             await releaseLock(userId);
             continue;
         }
+
 
         try {
             // Remove both from queue 

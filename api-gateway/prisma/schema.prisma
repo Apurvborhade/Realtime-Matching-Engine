@@ -22,8 +22,11 @@ model User {
   mmr            Int           @default(1000)
   rank           Rank
   preferredRoles Role[]
+  gender         Gender
   createdAt      DateTime      @default(now())
   matches        MatchPlayer[]
+
+  matchPreferences MatchPreference[]
 }
 
 model Match {
@@ -42,6 +45,18 @@ model MatchPlayer {
   team    Int
   user    User   @relation(fields: [userId], references: [id])
   match   Match  @relation(fields: [matchId], references: [id])
+}
+
+model MatchPreference {
+  id            String @id @default(uuid())
+  userId        String @unique
+
+  preferredGender Gender?
+  preferredRole   Role?
+  minRank         Rank?
+  maxRank         Rank?
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum Region {
@@ -72,4 +87,9 @@ enum Role {
   SENTINEL
   INITIATOR
   CONTROLLER
+}
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }

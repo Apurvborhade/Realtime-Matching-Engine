@@ -12,6 +12,7 @@ async function releaseLock(userId: string) {
     await redis.del(`lock:user:${userId}`)
 }
 
+
 export async function attemptDuoMatch(userId: string, mmr: number, region: Region) {
     const queueKey = `queue:${region}:duo`;
     const range = 100
@@ -27,6 +28,13 @@ export async function attemptDuoMatch(userId: string, mmr: number, region: Regio
         if (candidateId === userId) continue;
         const blocked = await redis.get(`decline:${userId}:${candidateId}`);
         if (blocked) {
+            continue;
+        }
+
+        const userProfile = await redis.hGetAll(`user:mm:${userId}`);
+        const candidateProfile = await redis.hGetAll(`user:mm:${candidateId}`);
+
+        if (!isCompatible(userProfile, candidateProfile)) {
             continue;
         }
 
@@ -105,4 +113,24 @@ async function createMatchInDB(
     console.log("Match pending acceptance:", match.id)
 
     return match.id
+}
+
+function isCompatible(user: any, candidate: any) {
+
+    if (
+        user.preferredGender &&
+        candidate.gender !== user.preferredGender
+    ) return false
+
+    if (
+        candidate.preferredGender &&
+        user.gender !== candidate.preferredGender
+    ) return false
+
+    if (
+        user.preferredRole &&
+        candidate.preferredRole !== user.preferredRole
+    ) return false
+
+    return true
 }

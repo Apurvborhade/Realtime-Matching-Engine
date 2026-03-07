@@ -1,11 +1,24 @@
 import { redis } from "../redis/client";
 import { attemptDuoMatch } from "../engine/duo.engine";
 import { Region } from "../../generated/prisma/enums";
+import { prisma } from "../lib/prisma";
 
 export async function joinQueue(userId: string, mmr: number, region: Region) {
     const key = `queue:${region}:duo`;
     await redis.zAdd(key, { score: mmr, value: userId });
 
+    const matchPreference = await prisma.matchPreference.findUnique({
+        where: { userId },
+    });
+    
+    await redis.hSet(`user:mm:${userId}`, {
+        mmr: mmr.toString(),
+        region,
+        gender: matchPreference?.preferredGender || "any",
+        preferredRole: matchPreference?.preferredRole || "any",
+        minRank: matchPreference?.minRank || "any",
+        maxRank: matchPreference?.maxRank || "any",
+    });
     // Immediately attempt to find a match for the user after joining the queue
     await attemptDuoMatch(userId, mmr, region);
 

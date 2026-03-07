@@ -17,9 +17,8 @@ export async function acceptMatch(req: Request, res: Response) {
   const acceptedUsers = await redis.sCard(`match:${matchId}:accepted`)
 
   if (acceptedUsers === 2) {
-
     await redis.set(`match:${matchId}:status`, "CONFIRMED")
-
+    await redis.del(`user:mm:${userId}`)
     return res.json({ message: "Match confirmed" })
   }
 
@@ -70,6 +69,8 @@ export async function declineMatch(req: Request, res: Response) {
     // Clean Redis match state
     await redis.del(`match:${matchId}:status`)
     await redis.del(`match:${matchId}:accepted`)
+    await redis.del(`user:mm:${matchPlayers[0].user.id}`)
+    await redis.del(`user:mm:${matchPlayers[1].user.id}`)
 
     console.log("Match deleted & players requeued:", matchId)
 

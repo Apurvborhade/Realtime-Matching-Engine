@@ -2,6 +2,70 @@ import { Request, Response } from "express"
 import { redis } from "../redis/client.js"
 import { prisma } from "../lib/prisma.js"
 
+export async function getPendingMatch(req: Request, res: Response) {
+  const userId = String(req.params.userId)
+
+  try {
+    const match = await prisma.match.findFirst({
+      where: {
+        type: "DUO",
+        players: {
+          some: {
+            userId
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      },
+      include: {
+        players: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                region: true,
+                rank: true,
+                mmr: true,
+                preferredRoles: true,
+                gender: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!match) {
+      return res.json({ success: true, match: null })
+    }
+
+    const status = await redis.get(`match:${match.id}:status`)
+    if (!status) {
+      return res.json({ success: true, match: null })
+    }
+
+    const acceptedUserIds = await redis.sMembers(`match:${match.id}:accepted`)
+    const partner = match.players.find((player) => player.userId !== userId)?.user ?? null
+
+    return res.json({
+      success: true,
+      match: {
+        id: match.id,
+        status,
+        region: match.region,
+        averageMMR: match.averageMMR,
+        acceptedUserIds,
+        partner
+      }
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ success: false, error: "Unable to fetch current match" })
+  }
+}
+
 export async function acceptMatch(req: Request, res: Response) {
   const { matchId, userId } = req.body
 

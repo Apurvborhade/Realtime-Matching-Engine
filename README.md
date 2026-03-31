@@ -23,6 +23,26 @@ frontend/          Sci-fi game-style UI for auth, arena, and duo intel
 docker-compose.yml Local Redis + service containers
 ```
 
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+    U["User"] --> F["Frontend (React + Vite)"]
+    F --> G["API Gateway (Express)"]
+    F --> M["Matching Service (Express)"]
+
+    G --> P["PostgreSQL / Prisma"]
+    M --> R["Redis"]
+    M --> P
+
+    R --> Q["Regional Queue Sorted Sets"]
+    R --> L["User Locks"]
+    R --> A["Match Acceptance State"]
+
+    G --> S["JWT Cookie Session"]
+    M --> D["Duo Match Engine"]
+```
+
 ## Features
 
 - Cookie-based auth with signup, login, logout, and `/me`
